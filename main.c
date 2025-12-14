@@ -79,7 +79,7 @@ unsigned short Read_Reg16(unsigned char reg)
     return u.RegAsUShort;
 }
 
-unsigned short Get_Reg16_Data(unsigned char reg)
+unsigned short Get_Reg16(unsigned char reg)
 {
     unsigned short value = Read_Reg16(reg);
 
@@ -106,11 +106,11 @@ int main(void)
 
     if (Initialize() == SUCCESS) {
 
-        long data = Get_Reg16_Data(TMP1075_TEMP);
+        long data = Get_Reg16(TMP1075_TEMP);
 #if 1        
-        unsigned char  cfg  = Get_Reg8_Data(TMP1075_CFGR);
-        unsigned short llim = Get_Reg16_Data(TMP1075_LLIM);
-        unsigned short hlim = Get_Reg16_Data(TMP1075_HLIM);
+        unsigned char  cfg  = Get_Reg16(TMP1075_CFGR);
+        unsigned short llim = Get_Reg16(TMP1075_LLIM);
+        unsigned short hlim = Get_Reg16(TMP1075_HLIM);
 #endif
 
         data >>= 4;
