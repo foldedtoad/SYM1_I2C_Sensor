@@ -1,5 +1,5 @@
 
-# TMP1075 - Simple TMP1075 I2C Demo on SYM-1
+# SYM-1 I2C Sensor -- A Simple TMP1075 Temperature Demo
 
 ## Overview
 This project produces a simple I2C driver which connects the TMP1075 temperature sensor to the SYM-1 board.  
