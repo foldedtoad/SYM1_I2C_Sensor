@@ -61,8 +61,7 @@ char buffer[10];
 long temp_integer;
 long temp_fraction;
 
-
-unsigned short Read_Register(unsigned char reg)
+unsigned short Read_Reg16(unsigned char reg)
 {
     I2C_START();
     I2C_WRITE_BYTE(TMP1075_ADDR_W);
@@ -80,22 +79,16 @@ unsigned short Read_Register(unsigned char reg)
     return u.RegAsUShort;
 }
 
-unsigned short Get_Reg_Data(unsigned char reg)
+unsigned short Get_Reg16_Data(unsigned char reg)
 {
-    unsigned short value = Read_Register(reg);
+    unsigned short value = Read_Reg16(reg);
 
-#if 0
-    //printf("reg(%02x) = 0x%04x\n", reg, value);
-#else
-    // This reduces memory size significantly - by half
-    // But the "reg" value doesn't print....why?
     fputs("reg(", stdout);
     utoa(reg, buffer, 16);
     fputs(") = 0x", stdout);
     itoa(value, buffer, 16);
     fputs(buffer, stdout);
     fputs("\n", stdout); 
-#endif
 
     return value;
 }
@@ -104,7 +97,7 @@ int Initialize(void)
 {
     I2C_INIT();
 
-    return (Read_Register(TMP1075_DIEID) == TMP1075_DEVICE_ID)? SUCCESS:FAILURE;
+    return (Read_Reg16(TMP1075_DIEID) == TMP1075_DEVICE_ID)? SUCCESS:FAILURE;
 }
 
 int main(void)
@@ -113,11 +106,11 @@ int main(void)
 
     if (Initialize() == SUCCESS) {
 
-        long data = Get_Reg_Data(TMP1075_TEMP);
+        long data = Get_Reg16_Data(TMP1075_TEMP);
 #if 1        
-        unsigned short cfg  = Get_Reg_Data(TMP1075_CFGR);
-        unsigned short llim = Get_Reg_Data(TMP1075_LLIM);
-        unsigned short hlim = Get_Reg_Data(TMP1075_HLIM);
+        unsigned char  cfg  = Get_Reg8_Data(TMP1075_CFGR);
+        unsigned short llim = Get_Reg16_Data(TMP1075_LLIM);
+        unsigned short hlim = Get_Reg16_Data(TMP1075_HLIM);
 #endif
 
         data >>= 4;
