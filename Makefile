@@ -29,8 +29,7 @@ TARGET  = tmp1075.bin
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(LD) -t sym1 $(OBJECTS) -o $@ $(LIBS) 
-	$(DA) -m --cpu 6502 $(TARGET) > $(basename $(TARGET)).lst
+	$(LD) -t sym1 $(OBJECTS) -o $@ $(LIBS)	
 
 %.o: %.c
 	$(CC) -t sym1 -O $< 

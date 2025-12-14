@@ -84,7 +84,7 @@ unsigned short Get_Reg_Data(unsigned char reg)
 {
     unsigned short value = Read_Register(reg);
 
-#if 1
+#if 0
     //printf("reg(%02x) = 0x%04x\n", reg, value);
 #else
     // This reduces memory size significantly - by half
@@ -114,10 +114,10 @@ int main(void)
     if (Initialize() == SUCCESS) {
 
         long data = Get_Reg_Data(TMP1075_TEMP);
-#if 0        
-        Get_Reg_Data(TMP1075_CFGR);
-        Get_Reg_Data(TMP1075_LLIM);
-        Get_Reg_Data(TMP1075_HLIM);
+#if 1        
+        unsigned short cfg  = Get_Reg_Data(TMP1075_CFGR);
+        unsigned short llim = Get_Reg_Data(TMP1075_LLIM);
+        unsigned short hlim = Get_Reg_Data(TMP1075_HLIM);
 #endif
 
         data >>= 4;
