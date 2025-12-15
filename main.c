@@ -8,8 +8,6 @@
 // Define the memory-mapped address of a specific port on the SYM-1
 // This example assumes a VIA port at address $AC00 (example address)
 
-void print_hex_byte(unsigned char value);
-
 extern void I2C_INIT(void);
 extern void I2C_START(void);
 extern void I2C_STOP(void);
@@ -48,18 +46,43 @@ char buffer[10];
 //   0.0625 * 10000 = 625 == 0x271
 //   0x149 * 0x271 = 0x32339 ==> 205625
 //   data = 032339 / FIXED_POINT
-//   temp_integer = data / FIXED_POINT
-//   temp_fraction = data % FIXED_POINT
-//   printf("temp: %d.%dC\n", temp_integer, temp_fraction);
+//   fixed_point.integer = data / FIXED_POINT
+//   fixed_point.fraction = data % FIXED_POINT
+//   printf("temp: %d.%dC\n", fixed_point.integer, fixed_point.fraction);
 //   shows: "temp: 20.56C"
 //
 
 #define DEGREES_PER_BIT  0x271
 #define FIXED_POINT 0x64
-//#define FIXED_POINT 0x271
 
-long temp_integer;
-long temp_fraction;
+struct {
+    long integer;
+    long fraction;    
+} fixed_point;
+
+
+void print_hex_byte(unsigned byte) 
+{
+    (void) byte;
+
+    asm("jsr $82FA");  // OUTBYT
+}
+
+void print_string(char * str)
+{
+    (void) str;
+
+    __asm__ ("      sta $FB     ");  // save str ptr to zero-page variable
+    __asm__ ("      stx $FC     ");
+    __asm__ ("      ldy #$00    ");
+    __asm__ ("@loop:            ");
+    __asm__ ("      lda ($FB),y ");
+    __asm__ ("      beq @done   ");
+    __asm__ ("      jsr $8A47   ");   // OUTCHR
+    __asm__ ("      iny         ");
+    __asm__ ("      bne @loop   ");
+    __asm__ ("@done:            ");
+}
 
 unsigned short Read_Reg16(unsigned char reg)
 {
@@ -81,14 +104,16 @@ unsigned short Read_Reg16(unsigned char reg)
 
 unsigned short Get_Reg16(unsigned char reg)
 {
-    unsigned short value = Read_Reg16(reg);
+    unsigned value = Read_Reg16(reg);
 
-    fputs("reg(", stdout);
-    utoa(reg, buffer, 16);
-    fputs(") = 0x", stdout);
+#if 1
+    print_string("reg(");
+    print_hex_byte(reg);
+    print_string(") = 0x");
     itoa(value, buffer, 16);
-    fputs(buffer, stdout);
-    fputs("\n", stdout); 
+    print_string(buffer);
+    print_string("\n\r");
+#endif
 
     return value;
 }
@@ -106,25 +131,63 @@ int main(void)
 
     if (Initialize() == SUCCESS) {
 
-        long data = Get_Reg16(TMP1075_TEMP);
-#if 1        
-        unsigned char  cfg  = Get_Reg16(TMP1075_CFGR);
-        unsigned short llim = Get_Reg16(TMP1075_LLIM);
-        unsigned short hlim = Get_Reg16(TMP1075_HLIM);
+        long temp = Get_Reg16(TMP1075_TEMP);
+#if 1
+        unsigned long cfg  = Get_Reg16(TMP1075_CFGR);
+        unsigned long llim = Get_Reg16(TMP1075_LLIM);
+        unsigned long hlim = Get_Reg16(TMP1075_HLIM);
+
+        // format CFG
+        print_string("cfg: 0x"); 
+        itoa(cfg, buffer, 16); 
+        print_string(buffer);  
+        print_string("\n\r"); 
+
+        // format LLIM
+        llim >>= 4;
+        llim *= DEGREES_PER_BIT;
+        llim /= FIXED_POINT;
+
+        fixed_point.integer  = llim / FIXED_POINT;
+        fixed_point.fraction = llim % FIXED_POINT;
+
+        print_string("llim: "); 
+        itoa(fixed_point.integer, buffer, 10); 
+        print_string(buffer); 
+        print_string("."); 
+        itoa(fixed_point.fraction, buffer, 10);
+        print_string(buffer); 
+        print_string("C\n\r"); 
+
+        // format HLIM
+        hlim >>= 4;
+        hlim *= DEGREES_PER_BIT;
+        hlim /= FIXED_POINT;
+
+        fixed_point.integer  = hlim / FIXED_POINT;
+        fixed_point.fraction = hlim % FIXED_POINT;
+
+        print_string("hlim: "); 
+        ltoa(fixed_point.integer, buffer, 10); 
+        print_string(buffer); 
+        print_string("."); 
+        ltoa(fixed_point.fraction, buffer, 10);
+        print_string(buffer); 
+        print_string("C\n\r"); 
 #endif
+        // format temperature
+        temp >>= 4;
+        temp *= DEGREES_PER_BIT;
+        temp /= FIXED_POINT;
 
-        data >>= 4;
-        data *= DEGREES_PER_BIT;
-        data /= FIXED_POINT;
-
-        temp_integer  = data / FIXED_POINT;
-        temp_fraction = data % FIXED_POINT;
+        fixed_point.integer  = temp / FIXED_POINT;
+        fixed_point.fraction = temp % FIXED_POINT;
 
         fputs("temp: ", stdout); 
-        ltoa(temp_integer, buffer, 10); 
+        ltoa(fixed_point.integer, buffer, 10); 
         fputs(buffer, stdout); 
         fputs(".", stdout); 
-        ltoa(temp_fraction, buffer, 10);
+        ltoa(fixed_point.fraction, buffer, 10);
         fputs(buffer, stdout); 
         puts("C"); 
     }
