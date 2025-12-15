@@ -37,7 +37,7 @@ union {
 
 char buffer[10];
 
-//
+//---------------------------------------------------------------------------
 // Assume raw temperature, "data", is 0x1490
 //   Shift right 4 bits (drop last nibble), so 0x149
 //   
@@ -50,7 +50,7 @@ char buffer[10];
 //   fixed_point.fraction = data % FIXED_POINT
 //   printf("temp: %d.%dC\n", fixed_point.integer, fixed_point.fraction);
 //   shows: "temp: 20.56C"
-//
+//---------------------------------------------------------------------------
 
 #define DEGREES_PER_BIT  0x271
 #define FIXED_POINT 0x64
@@ -60,7 +60,9 @@ struct {
     long fraction;    
 } fixed_point;
 
-
+//---------------------------------------------------------------------------
+// Print a single hex character
+//---------------------------------------------------------------------------
 void print_hex_byte(unsigned byte) 
 {
     (void) byte;
@@ -68,6 +70,9 @@ void print_hex_byte(unsigned byte)
     asm("jsr $82FA");  // OUTBYT
 }
 
+//---------------------------------------------------------------------------
+// Print a null-terminated (ASCIIZ) string
+//---------------------------------------------------------------------------
 void print_string(char * str)
 {
     (void) str;
@@ -84,6 +89,9 @@ void print_string(char * str)
     __asm__ ("@done:            ");
 }
 
+//---------------------------------------------------------------------------
+// Read a device 16-bit register
+//---------------------------------------------------------------------------
 unsigned short Read_Reg16(unsigned char reg)
 {
     I2C_START();
@@ -102,22 +110,47 @@ unsigned short Read_Reg16(unsigned char reg)
     return u.RegAsUShort;
 }
 
-unsigned short Get_Reg16(unsigned char reg)
+//---------------------------------------------------------------------------
+// Get a  device 16-bit reg and show it.
+//---------------------------------------------------------------------------
+unsigned Get_Reg16(unsigned char reg)
 {
     unsigned value = Read_Reg16(reg);
 
-#if 1
     print_string("reg(");
     print_hex_byte(reg);
     print_string(") = 0x");
     itoa(value, buffer, 16);
     print_string(buffer);
     print_string("\n\r");
-#endif
 
     return value;
 }
 
+//---------------------------------------------------------------------------
+// Convert and show a temperature type value
+//---------------------------------------------------------------------------
+void show_temperature(char * label, unsigned long value)
+{
+    value >>= 4;
+    value *= DEGREES_PER_BIT;
+    value /= FIXED_POINT;
+
+    fixed_point.integer  = value / FIXED_POINT;
+    fixed_point.fraction = value % FIXED_POINT;
+
+    print_string(label); 
+    itoa(fixed_point.integer, buffer, 10); 
+    print_string(buffer); 
+    print_string("."); 
+    itoa(fixed_point.fraction, buffer, 10);
+    print_string(buffer); 
+    print_string("C\n\r"); 
+}
+
+//---------------------------------------------------------------------------
+// Initialize I2C driver, with check for device ID.
+//---------------------------------------------------------------------------
 int Initialize(void)
 {
     I2C_INIT();
@@ -125,6 +158,9 @@ int Initialize(void)
     return (Read_Reg16(TMP1075_DIEID) == TMP1075_DEVICE_ID)? SUCCESS:FAILURE;
 }
 
+//---------------------------------------------------------------------------
+// Main application
+//---------------------------------------------------------------------------
 int main(void)
 {
     puts("Built "__DATE__" "__TIME__);
@@ -143,53 +179,10 @@ int main(void)
         print_string(buffer);  
         print_string("\n\r"); 
 
-        // format LLIM
-        llim >>= 4;
-        llim *= DEGREES_PER_BIT;
-        llim /= FIXED_POINT;
-
-        fixed_point.integer  = llim / FIXED_POINT;
-        fixed_point.fraction = llim % FIXED_POINT;
-
-        print_string("llim: "); 
-        itoa(fixed_point.integer, buffer, 10); 
-        print_string(buffer); 
-        print_string("."); 
-        itoa(fixed_point.fraction, buffer, 10);
-        print_string(buffer); 
-        print_string("C\n\r"); 
-
-        // format HLIM
-        hlim >>= 4;
-        hlim *= DEGREES_PER_BIT;
-        hlim /= FIXED_POINT;
-
-        fixed_point.integer  = hlim / FIXED_POINT;
-        fixed_point.fraction = hlim % FIXED_POINT;
-
-        print_string("hlim: "); 
-        ltoa(fixed_point.integer, buffer, 10); 
-        print_string(buffer); 
-        print_string("."); 
-        ltoa(fixed_point.fraction, buffer, 10);
-        print_string(buffer); 
-        print_string("C\n\r"); 
+        show_temperature("llim: ", llim); 
+        show_temperature("hlim: ", hlim); 
 #endif
-        // format temperature
-        temp >>= 4;
-        temp *= DEGREES_PER_BIT;
-        temp /= FIXED_POINT;
-
-        fixed_point.integer  = temp / FIXED_POINT;
-        fixed_point.fraction = temp % FIXED_POINT;
-
-        fputs("temp: ", stdout); 
-        ltoa(fixed_point.integer, buffer, 10); 
-        fputs(buffer, stdout); 
-        fputs(".", stdout); 
-        ltoa(fixed_point.fraction, buffer, 10);
-        fputs(buffer, stdout); 
-        puts("C"); 
+        show_temperature("temp: ", temp);
     }
 
     return 0;
