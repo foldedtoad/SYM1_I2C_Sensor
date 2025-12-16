@@ -15,7 +15,7 @@ RMDIR = $(RM) -r
 C_SOURCES = main.c
 C_OBJECTS = $(C_SOURCES:.c=.o)
 
-ASM_SOURCES = i2c.s
+ASM_SOURCES = i2c.s interrupts.s
 ASM_OBJECTS = $(ASM_SOURCES:.s=.o)
 
 OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)

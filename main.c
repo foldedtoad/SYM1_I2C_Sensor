@@ -16,14 +16,28 @@ extern unsigned char I2C_READ_BYTE(void);
 extern void I2C_SET_ACK(void);
 extern void I2C_SET_NACK(void);
 
+extern void Interrupts_Init(void);
+
 #define TMP1075_ADDR_R  0x91
 #define TMP1075_ADDR_W  0x90
 
-#define TMP1075_TEMP    0x00
-#define TMP1075_CFGR    0x01
-#define TMP1075_LLIM    0x02
-#define TMP1075_HLIM    0x03
-#define TMP1075_DIEID   0x0F
+#define TMP1075_TEMP            0x00
+#define TMP1075_CFGR            0x01
+#define TMP1075_CFGR_ONE_SHOT   0x80FF
+#define TMP1075_CFGR_RATE_25ms  0x00FF
+#define TMP1075_CFGR_RATE_55ms  0x10FF
+#define TMP1075_CFGR_RATE_110ms 0x20FF
+#define TMP1075_CFGR_RATE_220ms 0x30FF
+#define TMP1075_CFGR_FAULT_1    0x00FF
+#define TMP1075_CFGR_FAULT_2    0x08FF
+#define TMP1075_CFGR_FAULT_3    0x10FF
+#define TMP1075_CFGR_FAULT_4    0x18FF 
+#define TMP1075_CFGR_POL        0x04FF
+#define TMP1075_CFGR_TM         0x02FF
+#define TMP1075_CFGR_SHUT_DOWN  0x01FF
+#define TMP1075_LLIM            0x02
+#define TMP1075_HLIM            0x03
+#define TMP1075_DIEID           0x0F
 
 #define TMP1075_DEVICE_ID  0x7500
 
@@ -36,6 +50,11 @@ union {
 } u;
 
 char buffer[10];
+
+unsigned long temp;
+unsigned long cfg;
+unsigned long llim;
+unsigned long hlim;
 
 //---------------------------------------------------------------------------
 // Assume raw temperature, "data", is 0x1490
@@ -128,9 +147,40 @@ unsigned Get_Reg16(unsigned char reg)
 }
 
 //---------------------------------------------------------------------------
-// Convert and show a temperature type value
+// Write to a device 16-bit register
 //---------------------------------------------------------------------------
-void show_temperature(char * label, unsigned long value)
+void Write_Reg16(unsigned char reg, unsigned value)
+{
+    u.RegAsUShort = value;
+
+    I2C_START();
+    I2C_WRITE_BYTE(TMP1075_ADDR_W);
+    I2C_WRITE_BYTE(reg);
+
+//    I2C_START();
+//    I2C_WRITE_BYTE(TMP1075_ADDR_W);
+    asm("clc");
+    I2C_WRITE_BYTE(u.RegAsBytes[1]);   // note endian-ness here
+    asm("sec");
+    I2C_WRITE_BYTE(u.RegAsBytes[0]);
+    I2C_STOP();
+}
+
+//---------------------------------------------------------------------------
+// Print the value of a 16-bit value
+//---------------------------------------------------------------------------
+void Print_Reg16(char * label, unsigned short value)
+{
+    print_string(label); 
+    itoa(value, buffer, 16); 
+    print_string(buffer);  
+    print_string("\n\r");
+}
+
+//---------------------------------------------------------------------------
+// Convert and Print a temperature type value
+//---------------------------------------------------------------------------
+void Print_Temperature(char * label, unsigned long value)
 {
     value >>= 4;
     value *= DEGREES_PER_BIT;
@@ -149,10 +199,22 @@ void show_temperature(char * label, unsigned long value)
 }
 
 //---------------------------------------------------------------------------
+// 
+//---------------------------------------------------------------------------
+void Interrupt_Callback(void)
+{
+    temp = Get_Reg16(TMP1075_TEMP);
+    
+    Print_Temperature("temp: ", temp);
+}
+
+//---------------------------------------------------------------------------
 // Initialize I2C driver, with check for device ID.
 //---------------------------------------------------------------------------
 int Initialize(void)
 {
+    Interrupts_Init();
+
     I2C_INIT();
 
     return (Read_Reg16(TMP1075_DIEID) == TMP1075_DEVICE_ID)? SUCCESS:FAILURE;
@@ -167,22 +229,22 @@ int main(void)
 
     if (Initialize() == SUCCESS) {
 
-        long temp = Get_Reg16(TMP1075_TEMP);
+        temp = Get_Reg16(TMP1075_TEMP);
+        cfg  = Get_Reg16(TMP1075_CFGR);
+        llim = Get_Reg16(TMP1075_LLIM);
+        hlim = Get_Reg16(TMP1075_HLIM);
+
 #if 1
-        unsigned long cfg  = Get_Reg16(TMP1075_CFGR);
-        unsigned long llim = Get_Reg16(TMP1075_LLIM);
-        unsigned long hlim = Get_Reg16(TMP1075_HLIM);
-
-        // format CFG
-        print_string("cfg: 0x"); 
-        itoa(cfg, buffer, 16); 
-        print_string(buffer);  
-        print_string("\n\r"); 
-
-        show_temperature("llim: ", llim); 
-        show_temperature("hlim: ", hlim); 
+        Print_Reg16("cfg-R: 0x", cfg); 
+        cfg = TMP1075_CFGR_TM;
+        Print_Reg16("cfg-M: 0x", cfg); 
+        Write_Reg16(TMP1075_CFGR, cfg);
+        cfg  = Get_Reg16(TMP1075_CFGR);       
+        Print_Reg16("cfg-W: 0x", cfg);
 #endif
-        show_temperature("temp: ", temp);
+        Print_Temperature("llim: ", llim);
+        Print_Temperature("hlim: ", hlim);
+        Print_Temperature("temp: ", temp);
     }
 
     return 0;
