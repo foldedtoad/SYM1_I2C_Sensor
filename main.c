@@ -44,6 +44,32 @@ extern void Interrupts_Init(void);
 #define FAILURE   -1
 #define SUCCESS    0
 
+//---------------------------------------------------------------------------
+// Easy temperature values
+//---------------------------------------------------------------------------
+#define Temp_15C    0x1F00
+#define Temp_16C    0x1000
+#define Temp_17C    0x1100
+#define Temp_18C    0x1200
+#define Temp_19C    0x1300
+#define Temp_20C    0x1400
+#define Temp_21C    0x1500
+#define Temp_22C    0x1600
+#define Temp_23C    0x1700
+#define Temp_24C    0x1800
+#define Temp_25C    0x1900
+#define Temp_26C    0x1A00
+#define Temp_27C    0x1B00
+#define Temp_28C    0x1C00
+#define Temp_29C    0x1D00
+#define Temp_30C    0x1E00
+#define Temp_31C    0x1F00
+#define Temp_32C    0x2000
+
+//---------------------------------------------------------------------------
+//
+//---------------------------------------------------------------------------
+
 union {
     unsigned char RegAsBytes [2];
     unsigned short RegAsUShort;
@@ -136,18 +162,19 @@ unsigned Get_Reg16(unsigned char reg)
 {
     unsigned value = Read_Reg16(reg);
 
+#if 0
     print_string("reg(");
     print_hex_byte(reg);
     print_string(") = 0x");
     itoa(value, buffer, 16);
     print_string(buffer);
     print_string("\n\r");
-
+#endif
     return value;
 }
 
 //---------------------------------------------------------------------------
-// Write to a device 16-bit register
+// Write to a device's 16-bit register
 //---------------------------------------------------------------------------
 void Write_Reg16(unsigned char reg, unsigned value)
 {
@@ -157,8 +184,6 @@ void Write_Reg16(unsigned char reg, unsigned value)
     I2C_WRITE_BYTE(TMP1075_ADDR_W);
     I2C_WRITE_BYTE(reg);
 
-//    I2C_START();
-//    I2C_WRITE_BYTE(TMP1075_ADDR_W);
     asm("clc");
     I2C_WRITE_BYTE(u.RegAsBytes[1]);   // note endian-ness here
     asm("sec");
@@ -234,17 +259,24 @@ int main(void)
         llim = Get_Reg16(TMP1075_LLIM);
         hlim = Get_Reg16(TMP1075_HLIM);
 
-#if 1
-        Print_Reg16("cfg-R: 0x", cfg); 
-        cfg = TMP1075_CFGR_TM;
-        Print_Reg16("cfg-M: 0x", cfg); 
-        Write_Reg16(TMP1075_CFGR, cfg);
-        cfg  = Get_Reg16(TMP1075_CFGR);       
-        Print_Reg16("cfg-W: 0x", cfg);
-#endif
         Print_Temperature("llim: ", llim);
         Print_Temperature("hlim: ", hlim);
         Print_Temperature("temp: ", temp);
+
+        cfg = TMP1075_CFGR_TM; 
+        Write_Reg16(TMP1075_CFGR, cfg);
+        cfg  = Get_Reg16(TMP1075_CFGR);       
+        Print_Reg16("cfg: 0x", cfg);
+
+        llim = Temp_25C; 
+        Write_Reg16(TMP1075_LLIM, llim);
+        llim  = Get_Reg16(TMP1075_LLIM);       
+        Print_Temperature("llim: ", llim);
+
+        hlim = Temp_30C; 
+        Write_Reg16(TMP1075_HLIM, hlim);
+        hlim  = Get_Reg16(TMP1075_HLIM);       
+        Print_Temperature("hlim: ", hlim);
     }
 
     return 0;
