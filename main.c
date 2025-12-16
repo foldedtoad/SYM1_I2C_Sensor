@@ -156,7 +156,7 @@ unsigned short Read_Reg16(unsigned char reg)
 }
 
 //---------------------------------------------------------------------------
-// Get a  device 16-bit reg and show it.
+// Get a device's 16-bit reg and optionally print it.
 //---------------------------------------------------------------------------
 unsigned Get_Reg16(unsigned char reg)
 {
@@ -234,7 +234,7 @@ void Interrupt_Callback(void)
 }
 
 //---------------------------------------------------------------------------
-// Initialize I2C driver, with check for device ID.
+// Initialize Interrupts and I2C driver, with check for device ID.
 //---------------------------------------------------------------------------
 int Initialize(void)
 {
