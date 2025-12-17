@@ -40,7 +40,7 @@ It is assume you already have an serial link connection and can get the dot prom
 Be sure that your terminal emulator is running at __4800 baud 8N1__. 
 
 Assuming you're using minicom, you will need to set delays for each character and newline.  
-Press the __CNTL-A__ key + __T__ key to envoke the _Terminal settings_ menu, as shown below.  
+Press the __CTRL-A__ key + __T__ key to envoke the _Terminal settings_ menu, as shown below.  
 Press the __D__ key and enter __25__ [ENTER]  
 Press the __F__ key and enter __5__ [ENTER]  
 
@@ -60,14 +60,14 @@ Press CTRL-A Z+---------------[Terminal settings]----------------+
   
 Open the tmp1075.out file in a standard text editor (gedit).
 You will notice that the file contents is a series of one-byte lines.
-Select the full content with __CNTL-a__ and then __CNTL-c__ to copy it into your copy&paste buffer.  
+Select the full content with __CTRL-a__ and then __CTRL-c__ to copy it into your copy&paste buffer.  
 
 Back on the terminal emulator, enter the load-point address 
 ```
 .m 200
 0200,7B,
 ```
-Now __CNTL-v__ to paste the contents as held in the copy&paste buffer.  
+Now __CTRL-v__ to paste the contents as held in the copy&paste buffer.  
 This will stream in the contents fo the _tmp1075.out_ file.  
 This will take several minutes - usually about 2 minutes.
 
@@ -106,15 +106,22 @@ Press Meta-Z for help on special keys
 .
 .
 .g 200
-Built Dec 15 2025 21:27:32
+Built Dec 16 2025 23:15:51
 llim: 75.0C
 hlim: 80.0C
-temp: 23.6C
+temp: 22.6C
 cfg: 0x2FF
 llim: 25.0C
 hlim: 30.0C
+
+temp: 30.6C
+temp: 24.93C
 ```
 
 ## Logic Analyzer Trace
 
-![text](https://github.com/foldedtoad/sym1-examples/blob/master/tmp1075/images/SYM-1_I2C_analyzer.png)
+<img src="images/SYM-1_I2C_analyzer.png" title="Logic Analyzer Trace">
+
+ 
+<img src="images/tmp1075_alert.png" title="TMP1075 ALERT trace"> 
+
