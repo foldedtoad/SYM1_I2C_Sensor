@@ -122,6 +122,7 @@ hlim: 30.0C
 
 temp: 30.6C
 temp: 24.93C
+
 ```
 
 ## Logic Analyzer Trace
