@@ -56,7 +56,8 @@ _Interrupts_Init:
 
     ; Configure Peripheral Control Register (PCR)  
     lda VIA_PCR
-    ora #PCR_CA1_NAE   ; Negative Active Edge for CA1
+;    ora #PCR_CA1_NAE   ; Negative Active Edge for CA1
+    ora #PCR_CA1_PAE   ; Positive Active Edge for CA1
     sta VIA_PCR   
 
     ; Setup Interrupt System

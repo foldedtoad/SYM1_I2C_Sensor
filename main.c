@@ -1,13 +1,14 @@
+//---------------------------------------------------------------------------
+// Demo I2C Driver for TI TMP1075 Temperature Sensor
+//---------------------------------------------------------------------------
+
 #include <sym1.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdio.h> // For console I/O if available and configured
-#include <6502.h>  // For 6502-specific features if needed
+#include <6502.h>
 
-// Define the memory-mapped address of a specific port on the SYM-1
-// This example assumes a VIA port at address $AC00 (example address)
-
+//---------------------------------------------------------------------------
+// External References
+//---------------------------------------------------------------------------
 extern void I2C_INIT(void);
 extern void I2C_START(void);
 extern void I2C_STOP(void);
@@ -18,8 +19,14 @@ extern void I2C_SET_NACK(void);
 
 extern void Interrupts_Init(void);
 
-#define TMP1075_ADDR_R  0x91
-#define TMP1075_ADDR_W  0x90
+//---------------------------------------------------------------------------
+// Defines
+//---------------------------------------------------------------------------
+#define GENERAL_CALL_ADDR       0x00
+#define GENERAL_CALL_RESET      0x06
+
+#define TMP1075_ADDR_R          0x91
+#define TMP1075_ADDR_W          0x90
 
 #define TMP1075_TEMP            0x00
 #define TMP1075_CFGR            0x01
@@ -44,9 +51,7 @@ extern void Interrupts_Init(void);
 #define FAILURE   -1
 #define SUCCESS    0
 
-//---------------------------------------------------------------------------
 // Easy temperature values
-//---------------------------------------------------------------------------
 #define Temp_15C    0x1F00
 #define Temp_16C    0x1000
 #define Temp_17C    0x1100
@@ -67,10 +72,11 @@ extern void Interrupts_Init(void);
 #define Temp_32C    0x2000
 
 //---------------------------------------------------------------------------
-//
+// Variables
 //---------------------------------------------------------------------------
 
-union {
+union 
+{
     unsigned char RegAsBytes [2];
     unsigned short RegAsUShort;
 } u;
@@ -98,7 +104,7 @@ unsigned long hlim;
 //---------------------------------------------------------------------------
 
 #define DEGREES_PER_BIT  0x271
-#define FIXED_POINT 0x64
+#define FIXED_POINT      0x64
 
 struct {
     long integer;
@@ -132,6 +138,38 @@ void print_string(char * str)
     __asm__ ("      iny         ");
     __asm__ ("      bne @loop   ");
     __asm__ ("@done:            ");
+}
+
+//---------------------------------------------------------------------------
+// Print the value of a 16-bit value
+//---------------------------------------------------------------------------
+void Print_Reg16(char * label, unsigned short value)
+{
+    print_string(label); 
+    itoa(value, buffer, 16); 
+    print_string(buffer);  
+    print_string("\n\r");
+}
+
+//---------------------------------------------------------------------------
+// Convert and Print a temperature type value
+//---------------------------------------------------------------------------
+void Print_Temperature(char * label, unsigned long value)
+{
+    value >>= 4;
+    value *= DEGREES_PER_BIT;
+    value /= FIXED_POINT;
+
+    fixed_point.integer  = value / FIXED_POINT;
+    fixed_point.fraction = value % FIXED_POINT;
+
+    print_string(label); 
+    itoa(fixed_point.integer, buffer, 10); 
+    print_string(buffer); 
+    print_string("."); 
+    itoa(fixed_point.fraction, buffer, 10);
+    print_string(buffer); 
+    print_string("C\n\r"); 
 }
 
 //---------------------------------------------------------------------------
@@ -192,38 +230,6 @@ void Write_Reg16(unsigned char reg, unsigned value)
 }
 
 //---------------------------------------------------------------------------
-// Print the value of a 16-bit value
-//---------------------------------------------------------------------------
-void Print_Reg16(char * label, unsigned short value)
-{
-    print_string(label); 
-    itoa(value, buffer, 16); 
-    print_string(buffer);  
-    print_string("\n\r");
-}
-
-//---------------------------------------------------------------------------
-// Convert and Print a temperature type value
-//---------------------------------------------------------------------------
-void Print_Temperature(char * label, unsigned long value)
-{
-    value >>= 4;
-    value *= DEGREES_PER_BIT;
-    value /= FIXED_POINT;
-
-    fixed_point.integer  = value / FIXED_POINT;
-    fixed_point.fraction = value % FIXED_POINT;
-
-    print_string(label); 
-    itoa(fixed_point.integer, buffer, 10); 
-    print_string(buffer); 
-    print_string("."); 
-    itoa(fixed_point.fraction, buffer, 10);
-    print_string(buffer); 
-    print_string("C\n\r"); 
-}
-
-//---------------------------------------------------------------------------
 // 
 //---------------------------------------------------------------------------
 void Interrupt_Callback(void)
@@ -234,13 +240,28 @@ void Interrupt_Callback(void)
 }
 
 //---------------------------------------------------------------------------
+// Write general-call reset to reset device (See SMBus std. for details)
+//---------------------------------------------------------------------------
+void TMP1075_Reset(void)
+{
+    I2C_START();
+    I2C_WRITE_BYTE(GENERAL_CALL_ADDR);
+    asm("clc");
+    I2C_WRITE_BYTE(GENERAL_CALL_RESET); 
+    asm("sec");
+    I2C_STOP();
+}
+
+//---------------------------------------------------------------------------
 // Initialize Interrupts and I2C driver, with check for device ID.
 //---------------------------------------------------------------------------
 int Initialize(void)
 {
-    Interrupts_Init();
-
     I2C_INIT();
+
+    TMP1075_Reset();
+
+    Interrupts_Init();
 
     return (Read_Reg16(TMP1075_DIEID) == TMP1075_DEVICE_ID)? SUCCESS:FAILURE;
 }
@@ -250,7 +271,7 @@ int Initialize(void)
 //---------------------------------------------------------------------------
 int main(void)
 {
-    puts("Built "__DATE__" "__TIME__);
+    print_string("Built "__DATE__" "__TIME__"\n\r");
 
     if (Initialize() == SUCCESS) {
 
@@ -263,7 +284,7 @@ int main(void)
         Print_Temperature("hlim: ", hlim);
         Print_Temperature("temp: ", temp);
 
-        cfg = TMP1075_CFGR_TM; 
+        cfg = (TMP1075_CFGR_TM | TMP1075_CFGR_POL);
         Write_Reg16(TMP1075_CFGR, cfg);
         cfg  = Get_Reg16(TMP1075_CFGR);       
         Print_Reg16("cfg: 0x", cfg);
