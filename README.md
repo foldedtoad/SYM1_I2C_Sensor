@@ -43,7 +43,7 @@ Here is a close-up of the TMP1075 device wiring details.
 A 4.7K pull-up resistor is needed between Vcc and ALERT.  
 ```
   TMP1075 ALERT ────┬── VIA3 CA1 ("P" on AA-Connector)
-                    └── 4.7kΩ pull-up to VDD
+                    └── 4.7kΩ pull-up to Vcc
 ```
 
 The I2C bus will be conducted on VIA (6522) at address base __$AC00__.  
