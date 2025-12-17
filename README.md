@@ -7,20 +7,24 @@ The general operation is rather simple; showing a simple I2C implemntation via b
 As a secondary goal, this project shows how to construct firmware from C and assembly files.  
 
 ## Requirements
-1) Functioning SYM-1 board
-2) Recent installation of the CC65 toolchain
-3) An 44-line edge connector (for connector "AA" on SYM-1.
+1) Functioning SYM-1 board with at least 4K of RAM
+2) Latest installation of the CC65 toolchain (NOTE: latest is quit old)
+3) An 44-line edge connector (for connector "AA" on SYM-1. (or an IO-Expansion board)
 4) Other standard development tools: make, editor, hexdump, etc.
 5) Access to a terminal emulation program such as minicom (used for this development).
 
 ## Hardware Configuration
 Below are photos showing the hardware configuration.  
 
-![text](https://github.com/foldedtoad/sym1-examples/blob/master/tmp1075/images/SYM-1_I2C.jpg)
+<img src="images/SYM-1_I2C.jpg" title="setup overview">
 
 Here is a close-up of the I2C bus wires connected to the edge connector.  
 
-![text](https://github.com/foldedtoad/sym1-examples/blob/master/tmp1075/images/SYM-1_I2C_detail.jpg)  
+<img src="images/SYM-1_I2C_detail.jpg" title="I2C wiring details">
+
+Here is a close-up of the TMP1075 device wiring details. 
+
+<img src="images/SYM-1_Device_detail.jpg" title="TMP1075 wiring details">  
 
 A 4.7K pull-up resistor is needed between Vcc and ALERT.  
 ```
@@ -29,15 +33,14 @@ A 4.7K pull-up resistor is needed between Vcc and ALERT.
 ```
 
 The I2C bus will be conducted on VIA (6522) at address base __$AC00__.  
-The __SDA__ line will be on __$AC00 B0__.  
-The __SCL__ line will be on __$AC00 B1__.  
+The __SDA__ line will be on __$AC00 B0__ (on AA-Connector "16")
+The __SCL__ line will be on __$AC00 B1__ (on AA-Connector "T")  
 
 ## How to Build the Firmware
 
 This build method use standard make
-1) cd to your _sym1-examples_ directory
-2) cd to the _tmp1075_ directory
-3) _./build.sh_
+1) cd to the _SYM1_I2C_Sensor_ directory
+2) _./build.sh_
 
 This will produce both _tmp1075.bin_ and _tmp1075.out_ files
 
@@ -124,6 +127,11 @@ temp: 30.6C
 temp: 24.93C
 
 ```
+
+After starting the program, apply some heat source (hot-air gun) to the TMP1075: don't get it too close and melt things.  
+The temperature ranges is set between 25C (low threshold) and 30C (high threshold).  
+After applying some heat, you should see a temperature value printed, due to the temperature rising above the high temperature threshold value.  
+Let the sensor cool a minute or so and you should see the second temperature value printed, due to the temperature falling below the lower threshold value.
 
 ## Logic Analyzer Trace
 
