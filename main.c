@@ -173,6 +173,13 @@ void Print_Temperature(char * label, unsigned long value)
 }
 
 //---------------------------------------------------------------------------
+// 
+//---------------------------------------------------------------------------
+
+#define DATA_CONT   __asm__("clc") // Continue and ACK this byte transaction
+#define DATA_LAST   __asm__("sec") // Last and NACK this byte transaction
+
+//---------------------------------------------------------------------------
 // Read a device 16-bit register
 //---------------------------------------------------------------------------
 unsigned short Read_Reg16(unsigned char reg)
@@ -183,9 +190,9 @@ unsigned short Read_Reg16(unsigned char reg)
 
     I2C_START();
     I2C_WRITE_BYTE(TMP1075_ADDR_R);
-    asm("clc");
+    DATA_CONT;
     u.RegAsBytes[1] = I2C_READ_BYTE();   // note endian-ness here
-    asm("sec");
+    DATA_LAST;
     u.RegAsBytes[0] = I2C_READ_BYTE();
 
     I2C_STOP();
@@ -222,9 +229,9 @@ void Write_Reg16(unsigned char reg, unsigned value)
     I2C_WRITE_BYTE(TMP1075_ADDR_W);
     I2C_WRITE_BYTE(reg);
 
-    asm("clc");
+    DATA_CONT;
     I2C_WRITE_BYTE(u.RegAsBytes[1]);   // note endian-ness here
-    asm("sec");
+    DATA_LAST;
     I2C_WRITE_BYTE(u.RegAsBytes[0]);
     I2C_STOP();
 }
@@ -246,9 +253,9 @@ void TMP1075_Reset(void)
 {
     I2C_START();
     I2C_WRITE_BYTE(GENERAL_CALL_ADDR);
-    asm("clc");
+    DATA_CONT;
     I2C_WRITE_BYTE(GENERAL_CALL_RESET); 
-    asm("sec");
+    DATA_LAST;
     I2C_STOP();
 }
 
