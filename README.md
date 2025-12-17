@@ -13,10 +13,18 @@ As a secondary goal, this project shows how to construct firmware from C and ass
 4) Other standard development tools: make, editor, hexdump, etc.
 5) Access to a terminal emulation program such as minicom (used for this development).
 
-### Using the TMP1075EVM Eval MOdule
+### Using the TMP1075EVM Eval Module
+<img src="images/TMP1075EVM_front.jpeg" title="TMP1075EVM Front">
+<img src="images/TMP1075EVM_back.jpeg" title="TMP1075EVM Back ">
+Snap-off the sensor portion of the eval board and solder a standard 0.1" header onto it.  
+The USB-side is put aside and not used in this project, but keep it.  
+At the time of this projects creation, the TMP1075EVM is about $24.  
 
-
-
+### Build a TMP1075 Sensor from Parts
+Alternatively, a TMP1075 sensor module could be build from scratch.
+At the time of this project's creation, the TMP1075 IC is about $0.50.  
+**Warning:** the pitch on this IC is very fine and can be challenging to solder.
+As the eval module sensor was used in this project, no further details will be given here.  
 
 ## Hardware Configuration
 Below are photos showing the hardware configuration.  
