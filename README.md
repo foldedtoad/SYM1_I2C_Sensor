@@ -13,6 +13,11 @@ As a secondary goal, this project shows how to construct firmware from C and ass
 4) Other standard development tools: make, editor, hexdump, etc.
 5) Access to a terminal emulation program such as minicom (used for this development).
 
+### Using the TMP1075EVM Eval MOdule
+
+
+
+
 ## Hardware Configuration
 Below are photos showing the hardware configuration.  
 
