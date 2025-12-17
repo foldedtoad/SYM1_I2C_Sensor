@@ -105,9 +105,14 @@ Press Meta-Z for help on special keys
 0D78,18,
 .
 .
-.g 200                                                                              
-Built Oct  8 2025 18:22:49                                                          
-temp: 25.50C  
+.g 200
+Built Dec 15 2025 21:27:32
+llim: 75.0C
+hlim: 80.0C
+temp: 23.6C
+cfg: 0x2FF
+llim: 25.0C
+hlim: 30.0C
 ```
 
 ## Logic Analyzer Trace
