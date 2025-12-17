@@ -291,7 +291,8 @@ int main(void)
         Print_Temperature("hlim: ", hlim);
         Print_Temperature("temp: ", temp);
 
-        cfg = (TMP1075_CFGR_TM | TMP1075_CFGR_POL);
+//        cfg = (TMP1075_CFGR_TM | TMP1075_CFGR_POL);
+        cfg = TMP1075_CFGR_TM;
         Write_Reg16(TMP1075_CFGR, cfg);
         cfg  = Get_Reg16(TMP1075_CFGR);       
         Print_Reg16("cfg: 0x", cfg);
