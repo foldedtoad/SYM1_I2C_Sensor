@@ -20,7 +20,13 @@ Below are photos showing the hardware configuration.
 
 Here is a close-up of the I2C bus wires connected to the edge connector.  
 
-![text](https://github.com/foldedtoad/sym1-examples/blob/master/tmp1075/images/SYM-1_I2C_detail.jpg)
+![text](https://github.com/foldedtoad/sym1-examples/blob/master/tmp1075/images/SYM-1_I2C_detail.jpg)  
+
+A 4.7K pull-up resistor is needed between Vcc and ALERT.  
+```
+  TMP1075 ALERT ────┬── VIA3 CA1 ("P" on AA-Connector)
+                    └── 4.7kΩ pull-up to VDD
+```
 
 The I2C bus will be conducted on VIA (6522) at address base __$AC00__.  
 The __SDA__ line will be on __$AC00 B0__.  
