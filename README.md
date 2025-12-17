@@ -46,8 +46,8 @@ A 4.7K pull-up resistor is needed between Vcc and ALERT.
                     └── 4.7kΩ pull-up to Vcc
 ```
 
-The I2C bus will be conducted on VIA (6522) at address base __$AC00__.  
-The __SDA__ line will be on __$AC00 B0__ (on AA-Connector "16")
+The I2C bus will be conducted on VIA-3 (6522) at address base __$AC00__.  
+The __SDA__ line will be on __$AC00 B0__ (on AA-Connector "16")  
 The __SCL__ line will be on __$AC00 B1__ (on AA-Connector "T")  
 
 ## How to Build the Firmware
@@ -154,7 +154,7 @@ hlim: 30.0C
 
 ### Triggering Events
 After starting the program, apply some heat source (hot-air gun) to the TMP1075: don't get it too close and melt things.  
-The defaulttemperature ranges, set by the program, is between 25C (low threshold) and 30C (high threshold).  
+The default temperature ranges, set by the program, is between 25C (low threshold) and 30C (high threshold).  
 After applying some heat, you should see a temperature value printed, due to the temperature rising above the high temperature threshold value.  
 Let the sensor cool a minute or so and you should see the second temperature value printed, due to the temperature falling below the lower threshold value.  
 ```
