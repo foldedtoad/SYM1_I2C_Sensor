@@ -15,7 +15,8 @@ As a secondary goal, this project shows how to construct firmware from C and ass
 
 ### Using the TMP1075EVM Eval Module
 <img src="images/TMP1075EVM_front.jpeg" title="TMP1075EVM Front">
-<img src="images/TMP1075EVM_back.jpeg" title="TMP1075EVM Back ">
+<img src="images/TMP1075EVM_back.jpeg" title="TMP1075EVM Back ">  
+
 Snap-off the sensor portion of the eval board and solder a standard 0.1" header onto it.  
 The USB-side is put aside and not used in this project, but keep it.  
 At the time of this projects creation, the TMP1075EVM is about $24.  
@@ -23,7 +24,7 @@ At the time of this projects creation, the TMP1075EVM is about $24.
 ### Build a TMP1075 Sensor from Parts
 Alternatively, a TMP1075 sensor module could be build from scratch.
 At the time of this project's creation, the TMP1075 IC is about $0.50.  
-**Warning:** the pitch on this IC is very fine and can be challenging to solder.
+**Warning:** The pitch on this IC is very fine and can be challenging to solder.
 As the eval module sensor was used in this project, no further details will be given here.  
 
 ## Hardware Configuration
@@ -55,7 +56,17 @@ This build method use standard make
 1) cd to the _SYM1_I2C_Sensor_ directory
 2) _./build.sh_
 
-This will produce both _tmp1075.bin_ and _tmp1075.out_ files
+This will produce both _tmp1075.bin_ and _tmp1075.out_ files  
+
+An example build output is shown below.  
+```
+~/sym1/cc65/bin/cc65 -t sym1 -O main.c 
+~/sym1/cc65/bin/ca65 --cpu 6502 -l main.lst main.s -o main.o 
+~/sym1/cc65/bin/ca65 --cpu 6502 -l i2c.lst i2c.s -o i2c.o 
+~/sym1/cc65/bin/ca65 --cpu 6502 -l interrupts.lst interrupts.s -o interrupts.o 
+~/sym1/cc65/bin/ld65 -t sym1 main.o i2c.o interrupts.o -o tmp1075.bin --lib sym1.lib	
+hexdump -v -e '1/1 "%02x\n"' tmp1075.bin > tmp1075.out
+```
 
 ## How to Load the Firmware onto the SYM-1.
 It is assume you already have an serial link connection and can get the dot prompt (.) on your terminal emulator (minicom).  
@@ -126,7 +137,11 @@ Press Meta-Z for help on special keys
 0D77,9B,00
 0D78,18,
 .
-.
+```
+### Starting the Program
+At the dot prompt, enter the "g" (GO) command with 200.  
+This will execute the program, as shown below.  
+```
 .g 200
 Built Dec 16 2025 23:15:51
 llim: 75.0C
@@ -135,18 +150,19 @@ temp: 22.6C
 cfg: 0x2FF
 llim: 25.0C
 hlim: 30.0C
-
-temp: 30.6C
-temp: 24.93C
-
 ```
 
+### Triggering Events
 After starting the program, apply some heat source (hot-air gun) to the TMP1075: don't get it too close and melt things.  
-The temperature ranges is set between 25C (low threshold) and 30C (high threshold).  
+The defaulttemperature ranges, set by the program, is between 25C (low threshold) and 30C (high threshold).  
 After applying some heat, you should see a temperature value printed, due to the temperature rising above the high temperature threshold value.  
-Let the sensor cool a minute or so and you should see the second temperature value printed, due to the temperature falling below the lower threshold value.
+Let the sensor cool a minute or so and you should see the second temperature value printed, due to the temperature falling below the lower threshold value.  
+```
+temp: 30.6C
+temp: 24.93C
+```
 
-## Logic Analyzer Trace
+## Logic Analyzer Traces
 
 <img src="images/SYM-1_I2C_analyzer.png" title="Logic Analyzer Trace">
 
