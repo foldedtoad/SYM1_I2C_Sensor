@@ -22,9 +22,9 @@ The USB-side is put aside and not used in this project, but keep it.
 At the time of this projects creation, the TMP1075EVM is about $24.  
 
 ### Build a TMP1075 Sensor from Parts
-Alternatively, a TMP1075 sensor module could be build from scratch.
+Alternatively, a TMP1075 sensor module could be build from scratch.  
 At the time of this project's creation, the TMP1075 IC is about $0.50.  
-**Warning:** The pitch on this IC is very fine and can be challenging to solder.
+**Warning:** The pitch on this IC is very fine and can be challenging to solder.  
 As the eval module sensor was used in this project, no further details will be given here.  
 
 ## Hardware Configuration
