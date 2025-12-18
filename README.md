@@ -8,10 +8,11 @@ As a secondary goal, this project shows how to construct firmware from C and ass
 
 ## Requirements
 1) Functioning SYM-1 board with at least 4K of RAM
-2) Latest installation of the CC65 toolchain (NOTE: latest is quite old)
-3) An 44-line edge connector (for connector "AA" on SYM-1. (or an IO-Expansion board)
-4) Other standard development tools: make, editor, hexdump, etc.
-5) Access to a terminal emulation program such as minicom (used for this development).
+2) A TTL-level, USB-Serial adapter + inverter (standard SYM-1/KIM-1 console interface)
+3) Latest installation of the CC65 toolchain (NOTE: latest is quite old)
+4) An 44-line edge connector (for connector "AA" on SYM-1. (or an IO-Expansion board)
+5) Other standard development tools: make, editor, hexdump, etc.
+6) Access to a terminal emulation program such as minicom (used for this development).
 
 ### Using the TMP1075EVM Eval Module
 <img src="images/TMP1075EVM_front.jpeg" title="TMP1075EVM Front">
