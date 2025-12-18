@@ -201,24 +201,6 @@ unsigned short Read_Reg16(unsigned char reg)
 }
 
 //---------------------------------------------------------------------------
-// Get a device's 16-bit reg and optionally print it.
-//---------------------------------------------------------------------------
-unsigned Get_Reg16(unsigned char reg)
-{
-    unsigned value = Read_Reg16(reg);
-
-#if 0
-    print_string("reg(");
-    print_hex_byte(reg);
-    print_string(") = 0x");
-    itoa(value, buffer, 16);
-    print_string(buffer);
-    print_string("\n\r");
-#endif
-    return value;
-}
-
-//---------------------------------------------------------------------------
 // Write to a device's 16-bit register
 //---------------------------------------------------------------------------
 void Write_Reg16(unsigned char reg, unsigned value)
@@ -241,7 +223,7 @@ void Write_Reg16(unsigned char reg, unsigned value)
 //---------------------------------------------------------------------------
 void Interrupt_Callback(void)
 {
-    temp = Get_Reg16(TMP1075_TEMP);
+    temp = Read_Reg16(TMP1075_TEMP);
     
     Print_Temperature("temp: ", temp);
 }
@@ -282,10 +264,10 @@ int main(void)
 
     if (Initialize() == SUCCESS) {
 
-        temp = Get_Reg16(TMP1075_TEMP);
-        cfg  = Get_Reg16(TMP1075_CFGR);
-        llim = Get_Reg16(TMP1075_LLIM);
-        hlim = Get_Reg16(TMP1075_HLIM);
+        temp = Read_Reg16(TMP1075_TEMP);
+        cfg  = Read_Reg16(TMP1075_CFGR);
+        llim = Read_Reg16(TMP1075_LLIM);
+        hlim = Read_Reg16(TMP1075_HLIM);
 
         Print_Temperature("llim: ", llim);
         Print_Temperature("hlim: ", hlim);
@@ -293,17 +275,17 @@ int main(void)
 
         cfg = TMP1075_CFGR_TM;
         Write_Reg16(TMP1075_CFGR, cfg);
-        cfg  = Get_Reg16(TMP1075_CFGR);       
+        cfg  = Read_Reg16(TMP1075_CFGR);       
         Print_Reg16("cfg: 0x", cfg);
 
         llim = Temp_25C; 
         Write_Reg16(TMP1075_LLIM, llim);
-        llim  = Get_Reg16(TMP1075_LLIM);       
+        llim  = Read_Reg16(TMP1075_LLIM);       
         Print_Temperature("llim: ", llim);
 
         hlim = Temp_30C; 
         Write_Reg16(TMP1075_HLIM, hlim);
-        hlim  = Get_Reg16(TMP1075_HLIM);       
+        hlim  = Read_Reg16(TMP1075_HLIM);       
         Print_Temperature("hlim: ", hlim);
     }
 
